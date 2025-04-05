@@ -1,12 +1,12 @@
-import { Particle, Chemical } from '../physics/Particle';
-import { findDistanceBetweenTwoPoints } from '../physics/maths';
+import { Particle, ParticleType } from '../physics/Particle';
+import { findDistanceBetweenTwoObjects} from '../physics/maths';
 import { recipesUnformatted, } from './recipes';
 import { convertEquation, flattenParsedEquation, normalizeEquation } from './equationParsing';
-import { sampleChemicals } from './atoms';
+import { atomTypes } from './atomTypes';
 import { calculateLeftovers, getCombinations } from '../utils/chemistryUtils';
-import { sampleMolecules } from './molecules';
+import { moleculeTypes } from './moleculeTypes';
 
-const allChemicals: Chemical[] = [...sampleChemicals, ...sampleMolecules];
+const allChemicalTypes: ParticleType[] = [...atomTypes, ...moleculeTypes];
 
 export function simulateParticles(
     particles: Particle[],
@@ -14,14 +14,14 @@ export function simulateParticles(
     let updated = [...particles];
 
     const pairs = getCombinations(updated);
-    for (const [a, b] of pairs) {
-        const dist = findDistanceBetweenTwoPoints(a.x, a.y, b.x, b.y);
+    for (const [particleA, particleB] of pairs) {
+        const dist = findDistanceBetweenTwoObjects(particleA, particleB);
 
-        if (dist <= (a.radius + b.radius) && (a.state !== 'solid' || b.state !== 'solid')) {
+        if (dist <= (particleA.radius + particleB.radius) && (particleA.state !== 'solid' || particleB.state !== 'solid')) {
             const formulaMatch: string | undefined = Object.keys(recipesUnformatted).find(key => {
                 const [reactantsSet] = convertEquation(key);
                 const reactants = Array.from(reactantsSet);
-                return reactants.some(([name]) => name === a.name) && reactants.some(([name]) => name === b.name);
+                return reactants.some(([name]) => name === particleA.name) && reactants.some(([name]) => name === particleB.name);
             });
 
             if (formulaMatch) {
@@ -30,7 +30,7 @@ export function simulateParticles(
                     const normalized = normalizeEquation(convertEquation(formulaMatch));
                     const [reactants, products] = normalized;
                     const [r1, r2] = reactants;
-                    const reordered = a.name === String(r2[1]) ? [r2, r1] : [r1, r2];
+                    const reordered = particleA.name === String(r2[1]) ? [r2, r1] : [r1, r2];
 
                     const [[...excess], yields] = calculateLeftovers(
                         Number(reordered[0][0]),
@@ -38,38 +38,38 @@ export function simulateParticles(
                         String(reordered[0][1]),
                         String(reordered[1][1]),
                         Array.from(products).map(([name, amt]) => [amt, name]),
-                        a.mols,
-                        b.mols
+                        particleA.mols,
+                        particleB.mols
                     );
 
-                    const leftovers = flattenParsedEquation([
+                    const leftoverParticles = flattenParsedEquation([
                         new Map(excess.map(([amt, name]) => [String(name), Number(amt)])),
                         new Map(yields.map(([amt, name]) => [String(name), Number(amt)]))
                     ]);
 
-                    const newParticles: Particle[] = leftovers.map(([amt, name]) => {
-                        const chem = allChemicals.find(c => c.name === name);
-                        return chem
-                            ? new Particle((a.x + b.x) / 2, (a.y + b.y) / 2, Math.random(), amt, chem, temperature)
+                    const newParticles: Particle[] = leftoverParticles.map(([amt, name]) => {
+                        const chemicalType = allChemicalTypes.find(c => c.name === name);
+                        return chemicalType
+                            ? new Particle((particleA.x + particleB.x) / 2, (particleA.y + particleB.y) / 2, Math.random(), amt, chemicalType, temperature)
                             : null;
                     }).filter((p): p is Particle => p !== null);
 
 
-                    updated = updated.filter(d => d !== a && d !== b).concat(newParticles);
+                    updated = updated.filter(d => d !== particleA && d !== particleB).concat(newParticles);
                     break;
                 }
-            } else if (a.name === b.name) {
+            } else if (particleA.name === particleB.name) {
                 const merged = new Particle(
-                    (a.x + b.x) / 2,
-                    (a.y + b.y) / 2,
+                    (particleA.x + particleB.x) / 2,
+                    (particleA.y + particleB.y) / 2,
                     Math.random(),
-                    a.mols + b.mols,
-                    a.chemical,
+                    particleA.mols + particleB.mols,
+                    particleA.type,
                     temperature
                 );
-                merged.speedX = (a.speedX + b.speedX) / 2;
-                merged.speedY = (a.speedY + b.speedY) / 2;
-                updated = updated.filter(d => d !== a && d !== b).concat(merged);
+                merged.speedX = (particleA.speedX + particleB.speedX) / 2;
+                merged.speedY = (particleA.speedY + particleB.speedY) / 2;
+                updated = updated.filter(d => d !== particleA && d !== particleB).concat(merged);
                 break;
             }
         }

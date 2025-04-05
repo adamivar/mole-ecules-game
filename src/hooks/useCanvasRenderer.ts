@@ -5,16 +5,16 @@ import { renderFrame } from '../rendering/renderFrame';
 
 export function useCanvasRenderer(
   canvasRef: React.RefObject<HTMLCanvasElement>,
-  dots: Particle[],
+  particles: Particle[],
   temperature: number,
   selectedAtomName: string
 ) {
-  const dotsRef = useRef<Particle[]>(dots);
+  const particlesRef = useRef<Particle[]>(particles);
 
   // Sync dotsRef whenever dots change from outside (e.g. on click)
   useEffect(() => {
-    dotsRef.current = dots;
-  }, [dots]);
+    particlesRef.current = particles;
+  }, [particles]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -26,19 +26,19 @@ export function useCanvasRenderer(
     const render = () => {
       frameCount++;
 
-      const updatedDots = renderFrame(
+      const updatedParticles = renderFrame(
         ctx,
         canvas,
-        dotsRef.current,
+        particlesRef.current,
         temperature,
         selectedAtomName
       );
 
       // Simulate every 2nd frame for performance
       if (frameCount % 2 === 0) {
-        dotsRef.current = simulateParticles(updatedDots, temperature);
+        particlesRef.current = simulateParticles(updatedParticles, temperature);
       } else {
-        dotsRef.current = updatedDots;
+        particlesRef.current = updatedParticles;
       }
 
       requestAnimationFrame(render);

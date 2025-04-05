@@ -1,6 +1,6 @@
 import { findRadiusFromVolume } from './maths';
 
-export type Chemical = {
+export type ParticleType = {
     name: string;
     color: [number, number, number]; // RGB
     molarVolume: number;
@@ -17,7 +17,7 @@ export class Particle {
     speedY: number;
     id: number;
     mols: number;
-    chemical: Chemical;
+    type: ParticleType;
     radius: number;
     state: string;
     temperature: number;
@@ -28,7 +28,7 @@ export class Particle {
         y: number,
         id: number,
         mols: number,
-        chemical: Chemical,
+        type: ParticleType,
         temperature: number
     ) {
         this.x = x;
@@ -38,10 +38,10 @@ export class Particle {
 
         this.id = id;
         this.mols = mols;
-        this.chemical = chemical;
-        this.radius = findRadiusFromVolume(mols * chemical.molarVolume, 4, 10);
-        this.state = chemical.state_STP;
+        this.type = type;
+        this.radius = findRadiusFromVolume(mols * type.molarVolume, 4, 10);
+        this.state = type.state_STP;
         this.temperature = temperature;
-        this.name = chemical.name;
+        this.name = type.name;
     }
 }

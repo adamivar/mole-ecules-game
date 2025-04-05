@@ -1,39 +1,38 @@
 import { useState, useCallback } from 'react';
 import { Particle } from '../physics/Particle';
-import { sampleChemicals } from '../chemistry/atoms';
+import { atomTypes } from '../chemistry/atomTypes';
 
 
 export function useSimulation() {
     const [temperature, setTemperature] = useState(20);
-    const [dots, setDots] = useState<Particle[]>([]);
+    const [particles, setParticles] = useState<Particle[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [id, setId] = useState(0);
 
-    const atomClasses = sampleChemicals;
-    const selectedAtom = atomClasses[selectedIndex];
+    const selectedAtomType = atomTypes[selectedIndex];
 
-    const addDot = useCallback((x: number, y: number) => {
-        const newDot = new Particle(x, y, id, 1, selectedAtom, temperature);
+    const addParticle = useCallback((x: number, y: number) => {
+        const newParticle = new Particle(x, y, id, 1, selectedAtomType, temperature);
 
         // Update both state and rendering reference
-        setDots(prev => {
-            const updated = [...prev, newDot];
+        setParticles(prev => {
+            const updated = [...prev, newParticle];
             return updated;
         });
 
         setId(prev => prev + 1);
-    }, [id, selectedAtom, temperature]);
+    }, [id, selectedAtomType, temperature]);
 
 
     return {
-        dots,
-        setDots,
+        particles,
+        setParticles,
         temperature,
         setTemperature,
         selectedIndex,
         setSelectedIndex,
-        selectedAtom,
-        atomClasses,
-        addDot,
+        selectedAtomType,
+        atomTypes,
+        addParticle,
     };
 }

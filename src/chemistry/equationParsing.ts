@@ -5,7 +5,7 @@ import {
     CHEM_REGEX,
   } from "./recipes";
   
-  const memoizedEquations = new Map<string, ParsedEquation>();
+  const memorizedEquations = new Map<string, ParsedEquation>();
   
   export function convertStringChemical(str: string): ParsedChemical {
     const match = str.trim().match(CHEM_REGEX);
@@ -15,8 +15,8 @@ import {
   }
   
   export function convertEquation(equation: string): ParsedEquation {
-    if (memoizedEquations.has(equation)) {
-      return memoizedEquations.get(equation)!;
+    if (memorizedEquations.has(equation)) {
+      return memorizedEquations.get(equation)!;
     }
   
     const [lhs, rhs] = equation.split("=").map((side) =>
@@ -32,7 +32,7 @@ import {
     };
   
     const parsed: ParsedEquation = [toParsedSide(lhs), toParsedSide(rhs)];
-    memoizedEquations.set(equation, parsed);
+    memorizedEquations.set(equation, parsed);
     return parsed;
   }
   

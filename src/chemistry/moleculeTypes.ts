@@ -1,6 +1,6 @@
-import { Chemical } from '../physics/Particle';
+import { ParticleType } from '../physics/Particle';
 
-export const sampleMolecules: Chemical[] = [
+export const moleculeTypes: ParticleType[] = [
   {
     name: "CO",
     molarVolume: 44.6,

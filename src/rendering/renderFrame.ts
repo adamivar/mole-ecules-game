@@ -9,9 +9,9 @@ let fps = 0;
 export function renderFrame(
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement,
-    dots: Particle[],
+    particles: Particle[],
     temperature: number,
-    selectedAtomName: string
+    selectedAtomType: string
 ): Particle[] {
     const now = performance.now();
     fps = Math.round(1000 / (now - lastTime));
@@ -31,28 +31,28 @@ export function renderFrame(
     ctx.fillStyle = '#fff';
     ctx.font = '16px sans-serif';
     ctx.fillText(`${Math.round(kelvin)} °K | ${Math.round(temperature)} °C | ${Math.round(fahrenheit)} °F`, 20, 30);
-    ctx.fillText(selectedAtomName, 20, 50);
+    ctx.fillText(selectedAtomType, 20, 50);
 
     // Update and draw particles
-    const updatedDots: Particle[] = [];
-    for (const dot of dots) {
+    const updateParticles: Particle[] = [];
+    for (const particle of particles) {
         
         // [Optional] extract temperature-to-state logic
         // Update dot state based on temp
-        if (dot.chemical.tempLimits && temperature < dot.chemical.tempLimits[0]) {
-            dot.state = 'solid';
-        } else if (dot.chemical.tempLimits && temperature > dot.chemical.tempLimits[1]) {
-            dot.state = 'gas';
+        if (particle.type.tempLimits && temperature < particle.type.tempLimits[0]) {
+            particle.state = 'solid';
+        } else if (particle.type.tempLimits && temperature > particle.type.tempLimits[1]) {
+            particle.state = 'gas';
         } else {
-            dot.state = 'liquid';
+            particle.state = 'liquid';
         }
 
-        updateParticle(dot, canvas.width, canvas.height, temperature);
-        updatedDots.push(dot);
-        drawParticle(ctx, dot);
+        updateParticle(particle, canvas.width, canvas.height, temperature);
+        updateParticles.push(particle);
+        drawParticle(ctx, particle);
     }
     ctx.fillText(`FPS: ${fps}`, 20, 70);
 
-    return updatedDots;
+    return updateParticles;
     
 }

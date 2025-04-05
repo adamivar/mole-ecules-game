@@ -23,6 +23,13 @@ export function findDistanceBetweenTwoPoints(x1: number, y1: number, x2: number,
     return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 }
 
+//find distance between 2 objects
+export function findDistanceBetweenTwoObjects(obj1: { x: number, y: number }, obj2: { x: number, y: number }): number {
+    return findDistanceBetweenTwoPoints(obj1.x, obj1.y, obj2.x, obj2.y);
+}
+
+
+
 /**
  * Finds the colliding point between two circles.
  * @param x1 - X-coordinate of the first circle's center.

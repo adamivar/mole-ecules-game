@@ -4,7 +4,7 @@ import { findRadiusFromVolume } from './maths';
 
 // 🔹 2. Particle Physics Logic: Update Position, Speed, Radius, and Collision
 export function updateParticle(
-  p: Particle,
+  particle: Particle,
   screenWidth: number,
   screenHeight: number,
   temperature: number
@@ -12,84 +12,84 @@ export function updateParticle(
   const multiplier = temperature > 0 ? temperature / 1000 : 0;
 
   // 🔸 2.1. Update Based on Particle State
-  switch (p.state) {
+  switch (particle.state) {
     case 'gas': {
-      p.speedX += (Math.random() * 2 - 1); // jitter
-      p.speedY += (Math.random() * 2 - 1);
+      particle.speedX += (Math.random() * 2 - 1); // jitter
+      particle.speedY += (Math.random() * 2 - 1);
 
       // Damping
-      p.speedX *= 0.98;
-      p.speedY *= 0.98;
+      particle.speedX *= 0.98;
+      particle.speedY *= 0.98;
 
       // Clamp speed
       const maxSpeed = 15;
-      p.speedX = Math.max(-maxSpeed, Math.min(maxSpeed, p.speedX));
-      p.speedY = Math.max(-maxSpeed, Math.min(maxSpeed, p.speedY));
+      particle.speedX = Math.max(-maxSpeed, Math.min(maxSpeed, particle.speedX));
+      particle.speedY = Math.max(-maxSpeed, Math.min(maxSpeed, particle.speedY));
 
-      p.x += p.speedX;
-      p.y += p.speedY;
+      particle.x += particle.speedX;
+      particle.y += particle.speedY;
 
 
-      p.radius = findRadiusFromVolume(p.mols * 22400, 4, 10);
+      particle.radius = findRadiusFromVolume(particle.mols * 22400, 4, 10);
       break;
     }
 
 
     case 'noble':
-      p.speedX *= 0.99;
-      p.speedY *= 0.99;
-      p.x += p.speedX * 5;
-      p.y += p.speedY * 5;
+      particle.speedX *= 0.99;
+      particle.speedY *= 0.99;
+      particle.x += particle.speedX * 5;
+      particle.y += particle.speedY * 5;
       break;
 
 
     case 'liquid':
-      p.x += (Math.random() * 2 - 1) * multiplier + p.speedX * 0.02;
-      p.y += (Math.random() * 2 - 1) * multiplier + p.speedY * 0.02;
-      p.radius = findRadiusFromVolume(p.mols * p.chemical.molarVolume, 4, 10);
+      particle.x += (Math.random() * 2 - 1) * multiplier + particle.speedX * 0.02;
+      particle.y += (Math.random() * 2 - 1) * multiplier + particle.speedY * 0.02;
+      particle.radius = findRadiusFromVolume(particle.mols * particle.type.molarVolume, 4, 10);
       break;
 
     case 'solid':
-      p.speedX = 0;
-      p.speedY = 0;
-      p.radius = findRadiusFromVolume(p.mols * p.chemical.molarVolume, 4, 10);
+      particle.speedX = 0;
+      particle.speedY = 0;
+      particle.radius = findRadiusFromVolume(particle.mols * particle.type.molarVolume, 4, 10);
       break;
 
   }
 
   // 🔸 2.2. Screen Edge Collision Handling (except for noble gases)
-  if (p.state !== 'noble') {
+  if (particle.state !== 'noble') {
     // Bounce off walls
-    if (p.x - p.radius <= 0) {
-      p.x = p.radius;
-      p.speedX *= -1;
+    if (particle.x - particle.radius <= 0) {
+      particle.x = particle.radius;
+      particle.speedX *= -1;
     }
-    if (p.x + p.radius >= screenWidth) {
-      p.x = screenWidth - p.radius;
-      p.speedX *= -1;
+    if (particle.x + particle.radius >= screenWidth) {
+      particle.x = screenWidth - particle.radius;
+      particle.speedX *= -1;
     }
-    if (p.y - p.radius <= 0) {
-      p.y = p.radius;
-      p.speedY *= -1;
+    if (particle.y - particle.radius <= 0) {
+      particle.y = particle.radius;
+      particle.speedY *= -1;
     }
-    if (p.y + p.radius >= screenHeight) {
-      p.y = screenHeight - p.radius;
-      p.speedY *= -1;
+    if (particle.y + particle.radius >= screenHeight) {
+      particle.y = screenHeight - particle.radius;
+      particle.speedY *= -1;
     }
 
     // Special case: if particle is somehow stretched across both edges
-    if (p.x - p.radius <= 0 && p.x + p.radius >= screenWidth) {
-      p.x = screenWidth / 2;
+    if (particle.x - particle.radius <= 0 && particle.x + particle.radius >= screenWidth) {
+      particle.x = screenWidth / 2;
     }
-    if (p.y - p.radius <= 0 && p.y + p.radius >= screenHeight) {
-      p.y = screenHeight / 2;
+    if (particle.y - particle.radius <= 0 && particle.y + particle.radius >= screenHeight) {
+      particle.y = screenHeight / 2;
     }
   }
 }
 
 // 🔹 3. Drawing Particles to Canvas
 export function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
-  const [r, g, b] = p.chemical.color;
+  const [r, g, b] = p.type.color;
   const drawColor = `rgb(${r}, ${g}, ${b})`;
   const darkColor = `rgb(${r / 2}, ${g / 2}, ${b / 2})`;
 
@@ -122,7 +122,7 @@ export function drawParticle(ctx: CanvasRenderingContext2D, p: Particle) {
   ctx.strokeStyle = darkColor;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  const outlineRadius = findRadiusFromVolume(p.chemical.molarVolume, 4, 10);
+  const outlineRadius = findRadiusFromVolume(p.type.molarVolume, 4, 10);
   ctx.arc(p.x, p.y, outlineRadius, 0, Math.PI * 2);
   ctx.stroke();
 

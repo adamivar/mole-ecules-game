@@ -1,4 +1,4 @@
-import GameCanvas from './components/SimulationCanvas';
+import SimulationCanvas from './components/SimulationCanvas';
 
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
         <h1 className="text-center text-5xl font-extrabold tracking-tight mb-6">
           Mole-ecules
         </h1>
-        <GameCanvas />
+        <SimulationCanvas />
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
-import { Chemical } from '../physics/Particle';
+import { ParticleType } from '../physics/Particle';
 
 type AtomSelectorProps = {
-  atoms: Chemical[];
+  atomTypes: ParticleType[];
   selectedIndex: number;
   onSelect: (index: number) => void;
 };
 
-const AtomSelector = ({ atoms, selectedIndex, onSelect }: AtomSelectorProps) => {
+const AtomSelector = ({ atomTypes: atoms, selectedIndex, onSelect }: AtomSelectorProps) => {
     return (
       <div className="flex flex-wrap gap-2 justify-center mb-4">
         {atoms.map((atom, index) => {

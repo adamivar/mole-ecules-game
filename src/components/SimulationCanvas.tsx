@@ -4,27 +4,28 @@ import AtomSelector from './AtomSelector';
 import TemperatureSlider from './TemperatureSlider';
 import { useSimulation } from '../hooks/useSimulation';
 import { useCanvasRenderer } from '../hooks/useCanvasRenderer';
-
 // 🔹 2. Component Definition
-const GameCanvas = () => {
+const SimulationCanvas = () => {
 
   // 🔸 2.1. Refs and State Hooks
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const {
-    dots,
+    particles,
     temperature, setTemperature,
     selectedIndex, setSelectedIndex,
-    selectedAtom, atomClasses,
-    addDot
+    selectedAtomType, atomTypes,
+    addParticle
   } = useSimulation();
+
   const setIsMouseDown = useState(false)[1];
 
   // 🔸 2.2. Canvas Renderer Hook
   useCanvasRenderer(
     canvasRef as React.RefObject<HTMLCanvasElement>,
-    dots,
+    particles,
     temperature,
-    selectedAtom.name
+    selectedAtomType.name
   );
 
   // 🔸 2.3. Mouse Event Handlers
@@ -37,7 +38,7 @@ const GameCanvas = () => {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      addDot(x, y);
+      addParticle(x, y);
     };
     const handleMouseUp = () => setIsMouseDown(false);
 
@@ -48,13 +49,13 @@ const GameCanvas = () => {
       canvas.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [addDot, setIsMouseDown]);
+  }, [addParticle, setIsMouseDown]);
 
   // 🔸 2.4. Render UI
   return (
     <div className="bg-slate-800 rounded-2xl shadow-xl p-4">
       <AtomSelector
-        atoms={atomClasses}
+        atomTypes={atomTypes}
         selectedIndex={selectedIndex}
         onSelect={setSelectedIndex}
       />
@@ -66,8 +67,8 @@ const GameCanvas = () => {
       />
       <TemperatureSlider
         value={temperature}
-        min={-300}
-        max={10000}
+        min={-273}
+        max={4000}
         onChange={setTemperature}
       />
     </div>
@@ -75,4 +76,4 @@ const GameCanvas = () => {
 };
 
 // 🔹 3. Export Component
-export default GameCanvas;
+export default SimulationCanvas;
